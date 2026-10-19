@@ -73,7 +73,7 @@ make app SDK=/path/to/MacOSX14.sdk ARCH=x86_64 DEPLOYMENT_TARGET=14.0
    若未弹出，前往 系统设置 → 隐私与安全性 → 自动化 → 启动项看板 → 开启「系统事件」。
 2. 停用/启用通过 `launchctl enable/disable + bootstrap/bootout` 实现，仅影响当前用户会话，不修改厂商文件。
 3. 运行状态、定时任务与体检只读取 `launchctl` 与本地配置文件，**不需要额外权限**，也不会修改任何项目；crontab 仅作只读展示。
-4. 应用为菜单栏常驻（无 Dock 图标，`LSUIElement = true`），启动后在菜单栏出现图标。
+4. 应用为菜单栏常驻（无 Dock 图标，`LSUIElement = true`），启动后自动打开管理窗口，同时在菜单栏出现图标；关闭窗口后应用不退出，点菜单栏图标可再次打开。
 
 ## 打包与分发
 
