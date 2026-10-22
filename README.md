@@ -1,13 +1,13 @@
 # StartupBoard
 
-> 启动项看板 —— macOS 14+ 的菜单栏启动项管理器，Swift + SwiftUI 原生开发，全中文界面。
+> 启动项看板 —— macOS 14+ 的启动项管理器，Swift + SwiftUI 原生开发，全中文界面。
 
 > 早期版本名为「启动项管理 / startup-manager」与「LaunchDeck」，现已更名为
 > **StartupBoard / 启动项看板**（Bundle ID：`app.startupboard`）。
 
 ## 功能
 
-- **菜单栏浮层**：点菜单栏图标即可以毛玻璃面板快速开关后台启动项
+- **程序坞应用**：常驻 Dock，点击图标即可打开或重新显示管理窗口
 - **管理窗口**：侧边栏顶部为「定时任务 / 启动项体检」入口，其余按「自定义 / 第三方 / 系统自带 / 登录项」分组，支持搜索
 - **管理范围**（用户级，无需 root）：
   - `~/Library/LaunchAgents` — 当前用户启动项（可启用/停用/删除）
@@ -17,7 +17,7 @@
 - **服务运行控制台**：详情页展示进程 PID、运行次数、上次退出码、CPU 与内存占用，可一键启动 / 重启 / 停止（无需 root）
 - **定时任务面板**：聚合 `StartCalendarInterval`、`StartInterval` 与用户 `crontab`，把配置翻译成「每天 09:30」「每周三 18:00」这类可读描述
 - **启动项体检**：检查启动程序丢失、plist 损坏、标签冲突、临时路径等常见问题，给出 0–100 评分与可一键处理的建议
-- **防呆设计**：全中文界面；系统自带项（`com.apple.*`）不在菜单栏直接展示，停用前需二次确认；删除操作均需确认
+- **防呆设计**：全中文界面；系统自带项（`com.apple.*`）停用前需二次确认；删除操作均需确认
 
 ## 系统要求
 
@@ -73,7 +73,7 @@ make app SDK=/path/to/MacOSX14.sdk ARCH=x86_64 DEPLOYMENT_TARGET=14.0
    若未弹出，前往 系统设置 → 隐私与安全性 → 自动化 → 启动项看板 → 开启「系统事件」。
 2. 停用/启用通过 `launchctl enable/disable + bootstrap/bootout` 实现，仅影响当前用户会话，不修改厂商文件。
 3. 运行状态、定时任务与体检只读取 `launchctl` 与本地配置文件，**不需要额外权限**，也不会修改任何项目；crontab 仅作只读展示。
-4. 应用为菜单栏常驻（无 Dock 图标，`LSUIElement = true`），启动后自动打开管理窗口，同时在菜单栏出现图标；关闭窗口后应用不退出，点菜单栏图标可再次打开。
+4. 应用为常规窗口程序（有 Dock 图标，主菜单可用），启动后自动打开管理窗口；关闭窗口后应用不退出，点 Dock 图标可再次打开。
 
 ## 打包与分发
 
@@ -100,7 +100,7 @@ make app SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)"
 
 ```
 Sources/StartupBoard/
-  App.swift / AppDelegate.swift   入口与菜单栏常驻逻辑
+  App.swift / AppDelegate.swift   入口与窗口（Dock）行为
   ItemStore.swift                 统一数据源与状态刷新
   LaunchAgentScanner.swift        扫描 LaunchAgents 目录、解析 plist
   LaunchCtl.swift                 launchctl 封装（enable/disable/bootstrap/kickstart…）
@@ -110,7 +110,7 @@ Sources/StartupBoard/
   HealthCheck.swift               启动项体检规则
   ScheduleText.swift              定时配置 → 可读描述
   Models.swift / Shell.swift      数据模型与命令执行
-  Views/                          SwiftUI 界面（菜单栏浮层、管理窗口、详情页）
+  Views/                          SwiftUI 界面（管理窗口、详情页）
 Resources/                        Info.plist、图标源文件
 Tools/MakeIcon.swift              图标生成器（make icon）
 ```
@@ -124,10 +124,10 @@ Tools/MakeIcon.swift              图标生成器（make icon）
 把多余文件映射为空来规避，**无需 sudo，也不修改系统文件**。若仍失败，可考虑
 重装命令行工具：`sudo rm -rf /Library/Developer/CommandLineTools && xcode-select --install`。
 
-**菜单栏看不到图标**
+**关闭窗口后 Dock 图标还在**
 
-应用为 `LSUIElement` 模式，无 Dock 图标。若菜单栏条目过多被折叠，可在
-系统设置 → 控制中心 → 菜单栏中检查，或直接运行 `make run` 观察是否报错退出。
+这是预期行为：关闭窗口不会退出应用，点 Dock 图标或按 ⌘Tab 切回即可重新显示窗口；
+要彻底退出请使用 ⌘Q 或 Dock 图标的「退出」菜单。
 
 **开关启动项没反应**
 

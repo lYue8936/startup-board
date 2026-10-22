@@ -1,15 +1,25 @@
 import AppKit
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    /// 启动时是否已尝试打开管理窗口，避免菜单栏图标重建时重复打开
-    static var didAutoOpenManager = false
-
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // 菜单栏常驻应用：不占用 Dock 图标
-        NSApp.setActivationPolicy(.accessory)
+        // 常规应用：显示 Dock 图标与主菜单
+        NSApp.setActivationPolicy(.regular)
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false
+    }
+
+    /// 窗口已关闭时点击 Dock 图标，重新打开管理窗口
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        guard !flag else { return true }
+
+        if let window = sender.windows.first(where: { $0.canBecomeMain }) {
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            window.makeKeyAndOrderFront(nil)
+        } else {
+            WindowOpener.openManager?()
+        }
+        return true
     }
 }

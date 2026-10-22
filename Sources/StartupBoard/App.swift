@@ -7,14 +7,6 @@ struct StartupBoardApp: App {
     @StateObject private var store = ItemStore()
 
     var body: some Scene {
-        MenuBarExtra {
-            MenuBarPanel()
-                .environmentObject(store)
-        } label: {
-            MenuBarIcon()
-        }
-        .menuBarExtraStyle(.window)
-
         Window("启动项看板", id: "manager") {
             ManagerWindow()
                 .environmentObject(store)
@@ -25,20 +17,7 @@ struct StartupBoardApp: App {
     }
 }
 
-/// 菜单栏图标。`MenuBarExtra` 是首个 Scene，SwiftUI 不会自动打开管理窗口，
-/// 因此借图标首次出现时主动打开一次。
-private struct MenuBarIcon: View {
-    @Environment(\.openWindow) private var openWindow
-
-    var body: some View {
-        Image(systemName: "bolt.horizontal.fill")
-            .onAppear {
-                guard !AppDelegate.didAutoOpenManager else { return }
-                AppDelegate.didAutoOpenManager = true
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    openWindow(id: "manager")
-                    NSApp.activate(ignoringOtherApps: true)
-                }
-            }
-    }
+/// 记录「打开管理窗口」的动作，供 AppDelegate 在点击 Dock 图标时复用。
+enum WindowOpener {
+    static var openManager: (() -> Void)?
 }

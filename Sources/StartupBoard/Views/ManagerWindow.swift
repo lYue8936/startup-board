@@ -13,6 +13,7 @@ enum PendingAction {
 
 struct ManagerWindow: View {
     @EnvironmentObject private var store: ItemStore
+    @Environment(\.openWindow) private var openWindow
     @State private var selection: String?
     @State private var showAddSheet = false
     @State private var pending: PendingAction?
@@ -45,6 +46,7 @@ struct ManagerWindow: View {
             confirmationButtons
         }
         .onAppear {
+            WindowOpener.openManager = { openWindow(id: "manager") }
             if store.agents.isEmpty && store.loginItems.isEmpty { store.refresh() }
         }
     }
